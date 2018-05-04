@@ -90,8 +90,5 @@ public class MovingButtonActivity extends AppCompatActivity {
         animation.setDuration(duration);
         animation.start();
     }
-
-
-
 }
 

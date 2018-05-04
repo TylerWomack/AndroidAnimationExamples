@@ -17,19 +17,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main_layout);
-
-        //cloud animation activity
-        //Intent intent = new Intent(this, CloudAnimationActivity.class);
-        //startActivity(intent);
-
-        //Intent intent2 = new Intent(this, AnimatedVectorDrawableActivity.class);
-        //startActivity(intent2);
-
-        //Intent intent3 = new Intent(this, MovingButtonActivity.class);
-        //startActivity(intent3);
-
-
-
     }
 
     public void startActivity1(View v){
@@ -44,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void startActivity3(View v){
         Intent intent = new Intent(this, MovingButtonActivity.class);
+        startActivity(intent);
+    }
+
+    public void startActivity4(View v){
+        Intent intent = new Intent(this, FlingAnimationActivity.class);
         startActivity(intent);
     }
 }
