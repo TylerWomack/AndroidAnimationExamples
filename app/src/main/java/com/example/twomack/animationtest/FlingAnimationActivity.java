@@ -1,6 +1,7 @@
 package com.example.twomack.animationtest;
 
 import android.annotation.SuppressLint;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.animation.DynamicAnimation;
 import android.support.animation.FlingAnimation;
@@ -14,6 +15,8 @@ public class FlingAnimationActivity extends AppCompatActivity {
 
     ImageView star;
     private GestureDetector mDetector;
+    float height;
+    float width;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -21,8 +24,12 @@ public class FlingAnimationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fling_layout);
 
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        width = size.x;
+        height = size.y;
+
         star = findViewById(R.id.star);
-        // get the gesture detector
         mDetector = new GestureDetector(this, new MyGestureListener());
         star.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -38,16 +45,39 @@ public class FlingAnimationActivity extends AppCompatActivity {
         public boolean onFling(MotionEvent event1, MotionEvent event2,
                                float velocityX, float velocityY) {
 
-            FlingAnimation flingX = new FlingAnimation(star, DynamicAnimation.SCROLL_X);
-            flingX.setStartVelocity(-velocityX)
-                    .setFriction(5f)
+            final FlingAnimation flingX = new FlingAnimation(star, DynamicAnimation.X);
+            flingX.setStartVelocity(velocityX)
+                    .setFriction(.5f)
+                    .addUpdateListener(new DynamicAnimation.OnAnimationUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
+                                if (star.getX() < 0 && velocity < 0){
+                                    flingX.setStartVelocity(0 - velocity);
+                                }else if(star.getX() > width - ((star.getWidth() - star.getPaddingRight())) && velocity > 0){
+                                    flingX.setStartVelocity(0 - velocity);
+                                }
+                                flingX.start();
+                        }
+                    })
                     .start();
 
-            FlingAnimation flingY = new FlingAnimation(star, DynamicAnimation.SCROLL_Y);
-            flingY.setStartVelocity(-velocityY)
-                    .setFriction(5f)
+            final FlingAnimation flingY = new FlingAnimation(star, DynamicAnimation.Y);
+            flingY.setStartVelocity(velocityY)
+                    .setFriction(.5f)
+                    .addUpdateListener(new DynamicAnimation.OnAnimationUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
+
+                                if (star.getY() < 0 && velocity < 0){
+                                    flingY.setStartVelocity(0 - velocity);
+                                }else if(star.getY() > height - ((star.getHeight() * 2)) && velocity > 0){
+                                    flingY.setStartVelocity(0 - velocity);
+                                }
+                                flingY.start();
+                        }
+                    })
                     .start();
             return true;
         }
-}
+    }
 }
