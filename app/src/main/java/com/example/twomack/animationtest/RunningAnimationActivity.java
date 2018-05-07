@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
-public class CloudAnimationActivity extends AppCompatActivity {
+public class RunningAnimationActivity extends AppCompatActivity {
 
     AnimationDrawable rainAnimation;
 
@@ -14,9 +14,9 @@ public class CloudAnimationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.cloud_layout);
+        setContentView(R.layout.running_layout);
 
-        final ImageView raincloud = (ImageView) findViewById(R.id.raincloud);
+        final ImageView raincloud = (ImageView) findViewById(R.id.runningman);
         raincloud.setImageResource(R.drawable.animation);
         rainAnimation = (AnimationDrawable) raincloud.getDrawable();
 

@@ -39,7 +39,7 @@ public class MovingButtonActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                startAnim(button.getX(), button.getX() + 200, "translationX", 1000L);
+                startAnim(button.getX(), button.getX() + 400, "translationX", 1000L);
             }
 
             @Override
@@ -59,23 +59,23 @@ public class MovingButtonActivity extends AppCompatActivity {
             public void onClick(View v) {
                 switch (timesPressed){
                     case 0:
-                        animation = ObjectAnimator.ofFloat(button, "Y", 1000f);
+                        animation = ObjectAnimator.ofFloat(button, "Y", 1100f);
                         animation.setDuration(1000l);
                         animation.start();
                         button.setBackgroundColor(Color.MAGENTA);
                         timesPressed++;
                         break;
                     case 1:
-                        startAnim(button.getX(), button.getX() + 1000, "X", 1000l);
+                        startAnim(button.getX(), button.getX() + 700, "X", 600l);
                         timesPressed++;
                         button.setBackgroundColor(Color.BLUE);
                         break;
                     case 2:
-                        startAnim(button.getY(), button.getY() - 1000, "Y", 1000l);
+                        startAnim(button.getY(), button.getY() - 1000, "Y", 800l);
                         timesPressed++;
                         button.setBackgroundColor(Color.CYAN);
                         break;
-                    case 3: startAnim(button.getX(), button.getX() - 1000, "X", 1000l);
+                    case 3: startAnim(button.getX(), button.getX() - 700, "X", 1000l);
                         timesPressed = 0;
                         button.setBackgroundColor(Color.GRAY);
                         break;

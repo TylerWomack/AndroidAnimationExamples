@@ -5,7 +5,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startActivity1(View v){
-        Intent intent = new Intent(this, CloudAnimationActivity.class);
+        Intent intent = new Intent(this, RunningAnimationActivity.class);
         startActivity(intent);
     }
 
@@ -36,6 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void startActivity4(View v){
         Intent intent = new Intent(this, FlingAnimationActivity.class);
+        startActivity(intent);
+    }
+
+    public void startActivity5(View v){
+        Intent intent = new Intent(this, MovingButtonActivity2.class);
         startActivity(intent);
     }
 }
