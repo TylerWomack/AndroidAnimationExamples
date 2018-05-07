@@ -1,26 +1,31 @@
 package com.example.twomack.animationtest;
 
 import android.animation.ObjectAnimator;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import java.util.ArrayList;
+import java.util.Random;
+
 
 public class MovingButtonActivity2 extends AppCompatActivity {
 
     ObjectAnimator animation;
+    ObjectAnimator colorAnimation;
     Button button;
     int count;
-    //have an array of buttons?
+    int lastColor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.moving_button2);
 
         count = 0;
+        lastColor = getResources().getColor(R.color.colorAccent);
 
         final Button buttonOrig = findViewById(R.id.button5);
         buttonOrig.setOnClickListener(new View.OnClickListener() {
@@ -41,6 +46,7 @@ public class MovingButtonActivity2 extends AppCompatActivity {
         button.setX(v.getX());
         button.setY(v.getY());
         constraintLayout.addView(button, -1, lp);
+
 
         animate(button);
 
@@ -105,8 +111,19 @@ public class MovingButtonActivity2 extends AppCompatActivity {
     }
 
     private void setAnimation(Button button, String propertyName, float position){
+
+        Random random = new Random();
+        int randomColor = Color.argb(255, random.nextInt(255), random.nextInt(255), random.nextInt(255));
+
         animation = ObjectAnimator.ofFloat(button, propertyName, position);
         animation.setDuration(500);
         animation.start();
+
+        colorAnimation = ObjectAnimator.ofArgb(button, "backgroundColor", lastColor, randomColor);
+        colorAnimation.setDuration(500);
+        colorAnimation.start();
+
+        lastColor = randomColor;
+
     }
 }
