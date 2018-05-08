@@ -20,7 +20,7 @@
         <activity android:name=".RunningAnimationActivity"/>
         <activity android:name=".AnimatedVectorDrawableActivity"/>
         <activity android:name=".MovingButtonActivity"/>
-        <activity android:name=".FlingAnimationActivity"/>
+        <activity android:name=".stars.FlingAnimationActivity"/>
         <activity android:name=".MovingButtonActivity2"/>
     </application>
 

@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.twomack.animationtest.stars.FlingAnimationActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     AnimationDrawable rainAnimation;
