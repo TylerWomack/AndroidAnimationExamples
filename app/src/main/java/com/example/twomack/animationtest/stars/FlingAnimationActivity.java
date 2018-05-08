@@ -40,8 +40,8 @@ public class FlingAnimationActivity extends AppCompatActivity {
     private final int startingSize = 20;
     //private final int maxSize = 500;
     private final int wallsNeededToBreak = 1;
-    private final int speedNeededToBreak = 1000;
-    private final int barPower = 8000;
+    private final int speedNeededToBreak = 600;
+    private final int barPower = 10000;
 
     ArrayList<Star> starArrayList = new ArrayList<>();
 
@@ -58,7 +58,7 @@ public class FlingAnimationActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getSize(size);
         screenWidth = size.x;
         screenHeight = size.y - (barHeight * 2);
-        
+
         createNewStar(screenWidth/2, screenHeight/2, 0, 0, null);
         createNewStar(200, 400, 0, 0, null);
         createNewStar(screenWidth/3, screenHeight/3, 0 , 0, null);
@@ -84,13 +84,21 @@ public class FlingAnimationActivity extends AppCompatActivity {
         Star newStar = new Star(this);
         starArrayList.add(newStar);
 
+
         newStar.setImageDrawable(getResources().getDrawable(android.R.drawable.btn_star_big_on));
+
+        Random random = new Random();
+        if (random.nextInt(10) > 6){
+            newStar.setColorFilter(getRandomColor());
+        }
+
+
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
 
         if (oldStar == null){
             lp = new ConstraintLayout.LayoutParams(startingSize, startingSize);
             if (starArrayList.size() == 1){
-                lp = new ConstraintLayout.LayoutParams(startingSize * 4, startingSize * 4);
+                lp = new ConstraintLayout.LayoutParams(startingSize * 2, startingSize * 2);
             }
         }else{
             lp = new ConstraintLayout.LayoutParams(oldStar.getHeight()/2, oldStar.getWidth()/2);
@@ -113,6 +121,30 @@ public class FlingAnimationActivity extends AppCompatActivity {
         if (velocityY!= 0)
             simpleYFling(newStar, velocityY);
 
+    }
+
+    public int getRandomColor(){
+
+        Random random = new Random();
+        int randomNumber = random.nextInt(7);
+
+        switch (randomNumber){
+            case 0:
+                return getResources().getColor(R.color.darkblue);
+            case 1:
+                return getResources().getColor(R.color.green);
+            case 2:
+                return getResources().getColor(R.color.darkblue);
+            case 3:
+                return getResources().getColor(R.color.orange);
+            case 4:
+                return getResources().getColor(R.color.purple);
+            case 5:
+                return getResources().getColor(R.color.red);
+            case 6:
+                return getResources().getColor(R.color.yellow);
+        }
+        return getResources().getColor(R.color.lightblue);
     }
 
     public void startStarGenerator(){
