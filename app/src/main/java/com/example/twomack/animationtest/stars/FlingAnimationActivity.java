@@ -39,11 +39,18 @@ public class FlingAnimationActivity extends AppCompatActivity {
     float friction = .7f;
     private final int startingSize = 20;
     //private final int maxSize = 500;
-    private final int wallsNeededToBreak = 1;
-    private final int speedNeededToBreak = 600;
+    private final int wallsNeededToBreak = 0;
+    private final int speedNeededToBreak = 1000;
     private final int barPower = 10000;
+    private int baddieSpeed = 500;
+    private int baddieMovementDelay = 2000;
+    private int baddieRespawnRate = 10000;
+    private int starGenerationDelay = 200;
+    private final double difficultyIncreaseMultiplier = 1.1;
+    private final int difficultyIncreaseInterval = 20000;
 
     ArrayList<Star> starArrayList = new ArrayList<>();
+    ArrayList<Baddie> baddieArrayList = new ArrayList<>();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -65,6 +72,10 @@ public class FlingAnimationActivity extends AppCompatActivity {
         createNewStar(0, 600, 0 , 0, null);
         addRectangle();
         startStarGenerator();
+        createBaddie();
+        startBaddieMovement();
+        startBaddieGenerator();
+        startDifficultyGenerator();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -76,6 +87,83 @@ public class FlingAnimationActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public void createBaddie(){
+        Baddie baddie = new Baddie(this);
+
+        Random random = new Random();
+        if(random.nextBoolean()){
+            baddie.setFlingXVelocity(baddieSpeed);
+        }else {
+            baddie.setFlingXVelocity(0 - baddieSpeed);
+        }
+
+        if(random.nextBoolean()){
+            baddie.setFlingYVelocity(baddieSpeed);
+        }else {
+            baddie.setFlingYVelocity(0 - baddieSpeed);
+        }
+
+        baddieArrayList.add(baddie);
+        baddie.setImageDrawable(getResources().getDrawable(android.R.drawable.radiobutton_on_background));
+        ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
+        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(startingSize * 2, startingSize * 2);
+        constraintLayout.addView(baddie, -1, lp);
+        baddie.setColorFilter(Color.BLACK);
+
+        baddie.setY((float) random.nextInt((int) screenHeight));
+
+    }
+
+    public void moveAllBaddies(){
+        for (Baddie baddie : baddieArrayList){
+            flingY(baddie, baddie.getFlingYVelocity());
+            flingX(baddie, baddie.getFlingXVelocity());
+        }
+    }
+
+    public void increaseDifficulty(){
+        baddieSpeed = (int) (baddieSpeed * difficultyIncreaseMultiplier);
+        baddieMovementDelay = (int) (baddieMovementDelay / difficultyIncreaseMultiplier);
+        baddieRespawnRate = (int) (baddieRespawnRate / difficultyIncreaseMultiplier);
+        //starGenerationDelay = (int) ((double) starGenerationDelay/difficultyIncreaseMultiplier);
+        int x = 0;
+    }
+
+    public void startDifficultyGenerator(){
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                increaseDifficulty();
+                startDifficultyGenerator();
+            }
+        };
+        handler.postDelayed(r, difficultyIncreaseInterval);
+    }
+
+    public void startBaddieGenerator(){
+        final Random random = new Random();
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                createBaddie();
+                startBaddieGenerator();
+            }
+        };
+        handler.postDelayed(r, baddieRespawnRate);
+    }
+
+    public void startBaddieMovement(){
+        final Random random = new Random();
+        final Handler handler = new Handler();
+        final Runnable r = new Runnable() {
+            public void run() {
+                moveAllBaddies();
+                startBaddieMovement();
+            }
+        };
+        handler.postDelayed(r, baddieMovementDelay);
     }
 
     public void createNewStar(float x, float y, float velocityY, float velocityX, @Nullable Star oldStar){
@@ -92,13 +180,12 @@ public class FlingAnimationActivity extends AppCompatActivity {
             newStar.setColorFilter(getRandomColor());
         }
 
-
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
 
         if (oldStar == null){
             lp = new ConstraintLayout.LayoutParams(startingSize, startingSize);
             if (starArrayList.size() == 1){
-                lp = new ConstraintLayout.LayoutParams(startingSize * 2, startingSize * 2);
+                lp = new ConstraintLayout.LayoutParams(startingSize * 3, startingSize * 3);
             }
         }else{
             lp = new ConstraintLayout.LayoutParams(oldStar.getHeight()/2, oldStar.getWidth()/2);
@@ -158,10 +245,10 @@ public class FlingAnimationActivity extends AppCompatActivity {
                     startStarGenerator();
                 }
             };
-            handler.postDelayed(r, 500);
+            handler.postDelayed(r, starGenerationDelay);
     }
 
-    public void changeStarSize(Star star, int newSize){
+    public void changeStarSize(ImageView star, int newSize){
         //newSize = Math.min(maxSize, newSize);
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
         ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(newSize, newSize);
@@ -193,9 +280,7 @@ public class FlingAnimationActivity extends AppCompatActivity {
         }
     }
 
-
-
-    public void flingX(final Star object,
+    public void flingX(final StellarObject object,
                        final float velocityX){
 
         object.setHasHitWallAfterFling(false);
@@ -208,20 +293,43 @@ public class FlingAnimationActivity extends AppCompatActivity {
                     @Override
                     public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
 
+                        if (object.getClass() == Star.class){
+                            Star star = (Star) object;
+                            checkForBaddieDestruction(star);
+                        }
+
                         object.setXVelocity(velocity);
                         float newVelocity = 0 - velocity;
+                        //hit wall
                         if (object.getX() < 0 && velocity < 0){
                             object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
                             flingX.setStartVelocity(newVelocity);
+
+                            if (object.getClass() == Baddie.class){
+                                Baddie baddie = (Baddie) object;
+                                baddie.setFlingXVelocity(0 - baddie.getFlingXVelocity());
+                            }
+
                             if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getXVelocity() > speedNeededToBreak){
-                                createNewStar(object.getX(), object.getY(), 0, velocity, object);
+                                if (object.getClass() == Star.class){
+                                    createNewStar(object.getX(), object.getY(), 0, velocity, (Star) object);
+                                }
                             }
                             object.setHasHitWallAfterFling(true);
+                            //hit wall
                         }else if(object.getX() > screenWidth - ((object.getWidth() - object.getPaddingRight())) && velocity > 0){
                             object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
                             flingX.setStartVelocity(newVelocity);
+
+                            if (object.getClass() == Baddie.class){
+                                Baddie baddie = (Baddie) object;
+                                baddie.setFlingXVelocity(0 - baddie.getFlingXVelocity());
+                            }
+
                             if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getXVelocity() > speedNeededToBreak){
-                                createNewStar(object.getX(), object.getY(), 0, velocity, object);
+                                if (object.getClass() == Star.class){
+                                    createNewStar(object.getX(), object.getY(), 0, velocity, (Star) object);
+                                }
                             }
                             object.setHasHitWallAfterFling(true);
                         }
@@ -230,7 +338,7 @@ public class FlingAnimationActivity extends AppCompatActivity {
                 .start();
     }
 
-    public void flingY(final Star object, final float velocityY){
+    public void flingY(final StellarObject object, final float velocityY){
 
         object.setHasHitWallAfterFling(false);
         object.setWallsHitSinceFling(0);
@@ -242,23 +350,52 @@ public class FlingAnimationActivity extends AppCompatActivity {
                     @Override
                     public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
 
+                        //note: I'm only checking for star consumption in flingY. Stars will not be consumed in the rare event that
+                        //the user flings a star in a perfectly horizontal direction, however, this will make the program much more efficient.
                         if (!object.GetHasHitWallAfterFling())
-                            checkForOverlaps(object);
+                            checkForStarConsumption(object);
+
+                        if (object.getClass() == Star.class){
+                            Star star = (Star) object;
+                            checkForBaddieDestruction(star);
+                        }
+
+
+
 
                         object.setYVelocity(velocity);
                         float newVelocity = 0 - velocity;
+                        //hit wall
                         if (object.getY() < 0 && velocity < 0){
                             object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
                             flingY.setStartVelocity(newVelocity);
+
+                            if (object.getClass() == Baddie.class){
+                                Baddie baddie = (Baddie) object;
+                                baddie.setFlingYVelocity(0 - baddie.getFlingYVelocity());
+                            }
+
                             if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getYVelocity() > speedNeededToBreak){
-                                createNewStar(object.getX(), object.getY(), velocity, 0, object);
+                                if (object.getClass() == Star.class){
+                                    createNewStar(object.getX(), object.getY(), velocity, 0, (Star) object);
+                                }
                             }
                             object.setHasHitWallAfterFling(true);
+                            //hit wall
                         }else if(object.getY() > screenHeight - ((object.getHeight() * 2)) && velocity > 0){
                             object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
                             flingY.setStartVelocity(newVelocity);
+
+                            if (object.getClass() == Baddie.class){
+                                Baddie baddie = (Baddie) object;
+                                baddie.setFlingYVelocity(0 - baddie.getFlingYVelocity());
+                            }
+
                             if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getYVelocity() > speedNeededToBreak){
-                                createNewStar(object.getX(), object.getY(), velocity, 0, object);
+                                if (object.getClass() == Star.class){
+                                    createNewStar(object.getX(), object.getY(), velocity, 0, (Star) object);
+
+                                }
                             }
                             object.setHasHitWallAfterFling(true);
                         }
@@ -267,7 +404,7 @@ public class FlingAnimationActivity extends AppCompatActivity {
                 .start();
     }
 
-    public void checkForOverlaps(Star star){
+    public void checkForStarConsumption(ImageView star){
 
         Rect rect = new Rect();
         rect.set((int) star.getX(), (int) star.getY(), (int) (star.getX() + star.getWidth()), (int) (star.getY() + star.getHeight()));
@@ -289,9 +426,39 @@ public class FlingAnimationActivity extends AppCompatActivity {
         }
     }
 
-    public double findSizeAfterConsuming(Star star, Star consumed){
+    public void checkForBaddieDestruction(Star star){
 
-        double totalOriginalSize = ((star.getWidth() * .25) * (star.getWidth() * .25 ))/1000;
+        int starForce = getForce(star);
+
+        Rect rect = new Rect();
+        rect.set((int) star.getX(), (int) star.getY(), (int) (star.getX() + star.getWidth()), (int) (star.getY() + star.getHeight()));
+
+        Iterator<Baddie> iterator = baddieArrayList.iterator();
+        while (iterator.hasNext()){
+            Baddie toCheck = iterator.next();
+                    Rect check = new Rect((int) toCheck.getX(), (int) toCheck.getY(), (int) (toCheck.getX() + toCheck.getWidth()), (int) (toCheck.getY() + toCheck.getHeight()));
+                    if (rect.intersect(check)){
+
+                        if (starForce > getForce(toCheck)){
+                            //todo: destroy baddie - make it more interesting. Perhaps shrink the star in question.
+                            changeStarSize(star, (int) (star.getWidth() / findSizeAfterConsuming(star, toCheck)));
+                            toCheck.setVisibility(View.GONE);
+                            iterator.remove();
+                        }
+                    }
+        }
+    }
+
+    public int getForce(StellarObject object){
+        int accelerationProxy = (int) Math.max(object.getXVelocity(), object.getYVelocity());
+        int massProxy = object.getWidth();
+
+        return massProxy * accelerationProxy;
+    }
+
+    public double findSizeAfterConsuming(ImageView consumer, ImageView consumed){
+
+        double totalOriginalSize = ((consumer.getWidth() * .25) * (consumer.getWidth() * .25 ))/1000;
         double totalConsumedSize = ((consumed.getWidth() * .25) * (consumed.getWidth() * .25))/1000;
 
         double combinedSize = totalConsumedSize + totalOriginalSize;

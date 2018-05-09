@@ -1,16 +1,21 @@
 package com.example.twomack.animationtest.stars;
 
 import android.content.Context;
-import android.widget.ImageView;
 
-public class Star extends StellarObject {
+public class Baddie extends StellarObject {
+
 
     private boolean hasHitWallAfterFling;
     private float xVelocity;
     private float yVelocity;
     private int wallsHitSinceFling;
 
-    public Star(Context context) {
+
+    private int flingXVelocity;
+    private int flingYVelocity;
+
+
+    public Baddie(Context context) {
         super(context);
     }
 
@@ -20,6 +25,23 @@ public class Star extends StellarObject {
 
     public void setWallsHitSinceFling(int wallsHitSinceFling) {
         this.wallsHitSinceFling = wallsHitSinceFling;
+    }
+
+
+    public int getFlingXVelocity() {
+        return flingXVelocity;
+    }
+
+    public void setFlingXVelocity(int flingXVelocity) {
+        this.flingXVelocity = flingXVelocity;
+    }
+
+    public int getFlingYVelocity() {
+        return flingYVelocity;
+    }
+
+    public void setFlingYVelocity(int flingYVelocity) {
+        this.flingYVelocity = flingYVelocity;
     }
 
     public float getYVelocity() {

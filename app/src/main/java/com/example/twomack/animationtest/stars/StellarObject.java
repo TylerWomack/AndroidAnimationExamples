@@ -3,16 +3,15 @@ package com.example.twomack.animationtest.stars;
 import android.content.Context;
 import android.widget.ImageView;
 
-public class Star extends StellarObject {
+public abstract class StellarObject extends android.support.v7.widget.AppCompatImageView{
+    public StellarObject(Context context) {
+        super(context);
+    }
 
     private boolean hasHitWallAfterFling;
     private float xVelocity;
     private float yVelocity;
     private int wallsHitSinceFling;
-
-    public Star(Context context) {
-        super(context);
-    }
 
     public int getWallsHitSinceFling() {
         return wallsHitSinceFling;
@@ -45,5 +44,4 @@ public class Star extends StellarObject {
     public void setHasHitWallAfterFling(boolean hasHitWallAfterFling) {
         this.hasHitWallAfterFling = hasHitWallAfterFling;
     }
-
 }
