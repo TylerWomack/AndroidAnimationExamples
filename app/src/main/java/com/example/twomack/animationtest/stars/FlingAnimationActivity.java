@@ -15,7 +15,9 @@ import android.support.animation.SpringForce;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.solver.widgets.Rectangle;
+import android.support.v13.view.DragStartHelper;
 import android.support.v7.app.AppCompatActivity;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,17 +39,18 @@ public class FlingAnimationActivity extends AppCompatActivity {
     float screenHeight;
     float screenWidth;
     float friction = .7f;
-    private final int startingSize = 20;
+    private final int startingStarSize = 20;
     //private final int maxSize = 500;
     private final int wallsNeededToBreak = 0;
     private final int speedNeededToBreak = 1000;
     private final int barPower = 10000;
     private int baddieSpeed = 500;
-    private int baddieMovementDelay = 2000;
-    private int baddieRespawnRate = 10000;
+    private int baddieMovementDelay = 1500;
+    private int baddieRespawnRate = 8000;
     private int starGenerationDelay = 200;
     private final double difficultyIncreaseMultiplier = 1.1;
     private final int difficultyIncreaseInterval = 20000;
+    private final int baddieStartingSizeMultiplier = 3;
 
     ArrayList<Star> starArrayList = new ArrayList<>();
     ArrayList<Baddie> baddieArrayList = new ArrayList<>();
@@ -108,7 +111,7 @@ public class FlingAnimationActivity extends AppCompatActivity {
         baddieArrayList.add(baddie);
         baddie.setImageDrawable(getResources().getDrawable(android.R.drawable.radiobutton_on_background));
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
-        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(startingSize * 2, startingSize * 2);
+        ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(startingStarSize * baddieStartingSizeMultiplier, startingStarSize * baddieStartingSizeMultiplier);
         constraintLayout.addView(baddie, -1, lp);
         baddie.setColorFilter(Color.BLACK);
 
@@ -127,8 +130,7 @@ public class FlingAnimationActivity extends AppCompatActivity {
         baddieSpeed = (int) (baddieSpeed * difficultyIncreaseMultiplier);
         baddieMovementDelay = (int) (baddieMovementDelay / difficultyIncreaseMultiplier);
         baddieRespawnRate = (int) (baddieRespawnRate / difficultyIncreaseMultiplier);
-        //starGenerationDelay = (int) ((double) starGenerationDelay/difficultyIncreaseMultiplier);
-        int x = 0;
+        starGenerationDelay = (int) ((double) starGenerationDelay/difficultyIncreaseMultiplier);
     }
 
     public void startDifficultyGenerator(){
@@ -143,7 +145,6 @@ public class FlingAnimationActivity extends AppCompatActivity {
     }
 
     public void startBaddieGenerator(){
-        final Random random = new Random();
         final Handler handler = new Handler();
         final Runnable r = new Runnable() {
             public void run() {
@@ -155,7 +156,6 @@ public class FlingAnimationActivity extends AppCompatActivity {
     }
 
     public void startBaddieMovement(){
-        final Random random = new Random();
         final Handler handler = new Handler();
         final Runnable r = new Runnable() {
             public void run() {
@@ -183,9 +183,9 @@ public class FlingAnimationActivity extends AppCompatActivity {
         ConstraintLayout constraintLayout = findViewById(R.id.constraintLayout);
 
         if (oldStar == null){
-            lp = new ConstraintLayout.LayoutParams(startingSize, startingSize);
+            lp = new ConstraintLayout.LayoutParams(startingStarSize, startingStarSize);
             if (starArrayList.size() == 1){
-                lp = new ConstraintLayout.LayoutParams(startingSize * 3, startingSize * 3);
+                lp = new ConstraintLayout.LayoutParams(startingStarSize * 3, startingStarSize * 3);
             }
         }else{
             lp = new ConstraintLayout.LayoutParams(oldStar.getHeight()/2, oldStar.getWidth()/2);
@@ -210,29 +210,6 @@ public class FlingAnimationActivity extends AppCompatActivity {
 
     }
 
-    public int getRandomColor(){
-
-        Random random = new Random();
-        int randomNumber = random.nextInt(7);
-
-        switch (randomNumber){
-            case 0:
-                return getResources().getColor(R.color.darkblue);
-            case 1:
-                return getResources().getColor(R.color.green);
-            case 2:
-                return getResources().getColor(R.color.darkblue);
-            case 3:
-                return getResources().getColor(R.color.orange);
-            case 4:
-                return getResources().getColor(R.color.purple);
-            case 5:
-                return getResources().getColor(R.color.red);
-            case 6:
-                return getResources().getColor(R.color.yellow);
-        }
-        return getResources().getColor(R.color.lightblue);
-    }
 
     public void startStarGenerator(){
         final Random random = new Random();
@@ -240,7 +217,6 @@ public class FlingAnimationActivity extends AppCompatActivity {
             final Handler handler = new Handler();
             final Runnable r = new Runnable() {
                 public void run() {
-                    //what ever you do here will be done after 1 seconds delay.
                     createNewStar(random.nextFloat() * screenHeight, random.nextFloat() * screenWidth, random.nextFloat() * 100, random.nextFloat() * 100, null);
                     startStarGenerator();
                 }
@@ -299,39 +275,15 @@ public class FlingAnimationActivity extends AppCompatActivity {
                         }
 
                         object.setXVelocity(velocity);
-                        float newVelocity = 0 - velocity;
-                        //hit wall
+
                         if (object.getX() < 0 && velocity < 0){
-                            object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
-                            flingX.setStartVelocity(newVelocity);
 
-                            if (object.getClass() == Baddie.class){
-                                Baddie baddie = (Baddie) object;
-                                baddie.setFlingXVelocity(0 - baddie.getFlingXVelocity());
-                            }
+                            hitWall(object, flingX, velocity, false);
 
-                            if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getXVelocity() > speedNeededToBreak){
-                                if (object.getClass() == Star.class){
-                                    createNewStar(object.getX(), object.getY(), 0, velocity, (Star) object);
-                                }
-                            }
-                            object.setHasHitWallAfterFling(true);
-                            //hit wall
                         }else if(object.getX() > screenWidth - ((object.getWidth() - object.getPaddingRight())) && velocity > 0){
-                            object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
-                            flingX.setStartVelocity(newVelocity);
 
-                            if (object.getClass() == Baddie.class){
-                                Baddie baddie = (Baddie) object;
-                                baddie.setFlingXVelocity(0 - baddie.getFlingXVelocity());
-                            }
+                            hitWall(object, flingX, velocity, false);
 
-                            if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getXVelocity() > speedNeededToBreak){
-                                if (object.getClass() == Star.class){
-                                    createNewStar(object.getX(), object.getY(), 0, velocity, (Star) object);
-                                }
-                            }
-                            object.setHasHitWallAfterFling(true);
                         }
                     }
                 })
@@ -355,53 +307,56 @@ public class FlingAnimationActivity extends AppCompatActivity {
                         if (!object.GetHasHitWallAfterFling())
                             checkForStarConsumption(object);
 
+                        //I am, however, checking for baddie destruction in both X and Y flings, as there are far fewer of them to check.
                         if (object.getClass() == Star.class){
                             Star star = (Star) object;
                             checkForBaddieDestruction(star);
                         }
 
-
-
-
                         object.setYVelocity(velocity);
-                        float newVelocity = 0 - velocity;
+
                         //hit wall
                         if (object.getY() < 0 && velocity < 0){
-                            object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
-                            flingY.setStartVelocity(newVelocity);
 
-                            if (object.getClass() == Baddie.class){
-                                Baddie baddie = (Baddie) object;
-                                baddie.setFlingYVelocity(0 - baddie.getFlingYVelocity());
-                            }
+                            hitWall(object, flingY, velocity, true);
 
-                            if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getYVelocity() > speedNeededToBreak){
-                                if (object.getClass() == Star.class){
-                                    createNewStar(object.getX(), object.getY(), velocity, 0, (Star) object);
-                                }
-                            }
-                            object.setHasHitWallAfterFling(true);
-                            //hit wall
                         }else if(object.getY() > screenHeight - ((object.getHeight() * 2)) && velocity > 0){
-                            object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
-                            flingY.setStartVelocity(newVelocity);
 
-                            if (object.getClass() == Baddie.class){
-                                Baddie baddie = (Baddie) object;
-                                baddie.setFlingYVelocity(0 - baddie.getFlingYVelocity());
-                            }
-
-                            if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getYVelocity() > speedNeededToBreak){
-                                if (object.getClass() == Star.class){
-                                    createNewStar(object.getX(), object.getY(), velocity, 0, (Star) object);
-
-                                }
-                            }
-                            object.setHasHitWallAfterFling(true);
+                            hitWall(object, flingY, velocity, true);
                         }
                     }
                 })
                 .start();
+    }
+
+    public void hitWall(StellarObject object, FlingAnimation fling, float oldVelocity, boolean verticalStrike){
+        object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
+        fling.setStartVelocity(0 - oldVelocity);
+        object.setHasHitWallAfterFling(true);
+
+        if (verticalStrike){
+            if (object.getClass() == Baddie.class){
+                Baddie baddie = (Baddie) object;
+                baddie.setFlingYVelocity(0 - baddie.getFlingYVelocity());
+            }
+
+            if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getYVelocity() > speedNeededToBreak){
+                if (object.getClass() == Star.class){
+                    createNewStar(object.getX(), object.getY(), oldVelocity, 0, (Star) object);
+                }
+            }
+        }else if (!verticalStrike){
+            if (object.getClass() == Baddie.class){
+                Baddie baddie = (Baddie) object;
+                baddie.setFlingXVelocity(0 - baddie.getFlingXVelocity());
+            }
+
+            if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getXVelocity() > speedNeededToBreak){
+                if (object.getClass() == Star.class){
+                    createNewStar(object.getX(), object.getY(), 0, oldVelocity, (Star) object);
+                }
+            }
+        }
     }
 
     public void checkForStarConsumption(ImageView star){
@@ -477,6 +432,15 @@ public class FlingAnimationActivity extends AppCompatActivity {
                 flingY(toCheck, newYVelocity);
             }
         }
+
+        for (Baddie baddie : baddieArrayList){
+            Rect check = new Rect((int) baddie.getX(), (int) baddie.getY(), (int) (baddie.getX() + baddie.getWidth()), (int) (baddie.getY() + baddie.getHeight()));
+
+            if (rect.intersect(check)) {
+                float newYVelocity = baddie.getYVelocity() - barPower;
+                flingY(baddie, newYVelocity);
+            }
+        }
     }
 
     //same as a normal FlingX, except it doesn't splinter into new stars when it hits the walls.
@@ -549,5 +513,30 @@ public class FlingAnimationActivity extends AppCompatActivity {
             return super.onDown(e);
         }
     }
+
+    public int getRandomColor(){
+
+        Random random = new Random();
+        int randomNumber = random.nextInt(7);
+
+        switch (randomNumber){
+            case 0:
+                return getResources().getColor(R.color.darkblue);
+            case 1:
+                return getResources().getColor(R.color.green);
+            case 2:
+                return getResources().getColor(R.color.darkblue);
+            case 3:
+                return getResources().getColor(R.color.orange);
+            case 4:
+                return getResources().getColor(R.color.purple);
+            case 5:
+                return getResources().getColor(R.color.red);
+            case 6:
+                return getResources().getColor(R.color.yellow);
+        }
+        return getResources().getColor(R.color.lightblue);
+    }
+
 
 }
