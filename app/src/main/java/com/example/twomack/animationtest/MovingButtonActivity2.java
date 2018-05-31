@@ -46,8 +46,6 @@ public class MovingButtonActivity2 extends AppCompatActivity {
         button.setX(v.getX());
         button.setY(v.getY());
         constraintLayout.addView(button, -1, lp);
-
-
         animate(button);
 
         button.setOnClickListener(new View.OnClickListener() {

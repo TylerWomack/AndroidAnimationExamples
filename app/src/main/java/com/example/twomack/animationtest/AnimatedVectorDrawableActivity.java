@@ -21,5 +21,4 @@ public class AnimatedVectorDrawableActivity extends AppCompatActivity {
             ((Animatable) drawable).start();
         }
     }
-
 }

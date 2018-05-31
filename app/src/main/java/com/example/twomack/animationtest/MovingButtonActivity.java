@@ -24,12 +24,14 @@ public class MovingButtonActivity extends AppCompatActivity {
 
         button = findViewById(R.id.movableButton);
 
-        //initializing animation
-        animation = ObjectAnimator.ofFloat(button, "translationY", 0f);
 
         initialAnimation = ObjectAnimator.ofFloat(button, "translationX", -200f);
         initialAnimation.setDuration(0);
         initialAnimation.start();
+
+        //initializing animation
+        animation = ObjectAnimator.ofFloat(button, "translationY", 0f);
+
 
         initialAnimation.addListener(new Animator.AnimatorListener() {
             @Override
@@ -66,7 +68,7 @@ public class MovingButtonActivity extends AppCompatActivity {
                         timesPressed++;
                         break;
                     case 1:
-                        startAnim(button.getX(), button.getX() + 700, "X", 600l);
+                        startAnim(button.getX(), button.getX() + 400, "X", 600l);
                         timesPressed++;
                         button.setBackgroundColor(Color.BLUE);
                         break;
@@ -75,7 +77,7 @@ public class MovingButtonActivity extends AppCompatActivity {
                         timesPressed++;
                         button.setBackgroundColor(Color.CYAN);
                         break;
-                    case 3: startAnim(button.getX(), button.getX() - 700, "X", 1000l);
+                    case 3: startAnim(button.getX(), button.getX() - 400, "X", 1000l);
                         timesPressed = 0;
                         button.setBackgroundColor(Color.GRAY);
                         break;

@@ -1,23 +1,17 @@
-package com.example.twomack.animationtest.stars;
+package com.example.twomack.animationtest.stars.objects;
 
 import android.content.Context;
+import android.widget.ImageView;
 
-public class Baddie extends StellarObject {
-
+public abstract class StellarObject extends android.support.v7.widget.AppCompatImageView{
+    public StellarObject(Context context) {
+        super(context);
+    }
 
     private boolean hasHitWallAfterFling;
     private float xVelocity;
     private float yVelocity;
     private int wallsHitSinceFling;
-
-
-    private int flingXVelocity;
-    private int flingYVelocity;
-
-
-    public Baddie(Context context) {
-        super(context);
-    }
 
     public int getWallsHitSinceFling() {
         return wallsHitSinceFling;
@@ -25,23 +19,6 @@ public class Baddie extends StellarObject {
 
     public void setWallsHitSinceFling(int wallsHitSinceFling) {
         this.wallsHitSinceFling = wallsHitSinceFling;
-    }
-
-
-    public int getFlingXVelocity() {
-        return flingXVelocity;
-    }
-
-    public void setFlingXVelocity(int flingXVelocity) {
-        this.flingXVelocity = flingXVelocity;
-    }
-
-    public int getFlingYVelocity() {
-        return flingYVelocity;
-    }
-
-    public void setFlingYVelocity(int flingYVelocity) {
-        this.flingYVelocity = flingYVelocity;
     }
 
     public float getYVelocity() {
@@ -67,5 +44,4 @@ public class Baddie extends StellarObject {
     public void setHasHitWallAfterFling(boolean hasHitWallAfterFling) {
         this.hasHitWallAfterFling = hasHitWallAfterFling;
     }
-
 }

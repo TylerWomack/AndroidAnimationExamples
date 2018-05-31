@@ -8,7 +8,7 @@ import android.widget.ImageView;
 
 public class RunningAnimationActivity extends AppCompatActivity {
 
-    AnimationDrawable rainAnimation;
+    AnimationDrawable runningAnimation;
 
 
     @Override
@@ -16,14 +16,14 @@ public class RunningAnimationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.running_layout);
 
-        final ImageView raincloud = (ImageView) findViewById(R.id.runningman);
-        raincloud.setImageResource(R.drawable.animation);
-        rainAnimation = (AnimationDrawable) raincloud.getDrawable();
+        final ImageView runningMan = findViewById(R.id.runningman);
+        runningMan.setImageResource(R.drawable.animation);
+        runningAnimation = (AnimationDrawable) runningMan.getDrawable();
 
-        raincloud.setOnClickListener(new View.OnClickListener() {
+        runningMan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                rainAnimation.start();
+                runningAnimation.start();
             }
         });
 
