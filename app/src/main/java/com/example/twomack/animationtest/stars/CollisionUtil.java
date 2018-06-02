@@ -3,7 +3,6 @@ package com.example.twomack.animationtest.stars;
 import android.graphics.Rect;
 import android.support.animation.FlingAnimation;
 import android.support.constraint.ConstraintLayout;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.example.twomack.animationtest.R;
@@ -19,10 +18,10 @@ import static com.example.twomack.animationtest.stars.AppConstants.wallsNeededTo
 
 public class CollisionUtil {
 
-    FlingAnimationActivity starActivity;
-    ObjectCreator objectCreator;
+    private FlingAnimationActivity starActivity;
+    private ObjectCreator objectCreator;
 
-    public CollisionUtil(FlingAnimationActivity starActivity, ObjectCreator objectCreator){
+    CollisionUtil(FlingAnimationActivity starActivity, ObjectCreator objectCreator){
         this.starActivity = starActivity;
         this.objectCreator = objectCreator;
     }
@@ -31,7 +30,7 @@ public class CollisionUtil {
         Rect rect = new Rect();
         rect.set((int) bar.getX(), (int) bar.getY(), (int) (bar.getX() + bar.getWidth()), (int) (bar.getY() + bar.getHeight()));
 
-        for (Star toCheck : starActivity.starArrayList) {
+        for (Star toCheck : starActivity.getStarArrayList()) {
             Rect check = new Rect((int) toCheck.getX(), (int) toCheck.getY(), (int) (toCheck.getX() + toCheck.getWidth()), (int) (toCheck.getY() + toCheck.getHeight()));
 
             if (rect.intersect(check)) {
@@ -40,7 +39,7 @@ public class CollisionUtil {
             }
         }
 
-        for (Baddie baddie : starActivity.baddieArrayList) {
+        for (Baddie baddie : starActivity.getBaddieArrayList()) {
             Rect check = new Rect((int) baddie.getX(), (int) baddie.getY(), (int) (baddie.getX() + baddie.getWidth()), (int) (baddie.getY() + baddie.getHeight()));
 
             if (rect.intersect(check)) {
@@ -55,16 +54,15 @@ public class CollisionUtil {
         Rect rect = new Rect();
         rect.set((int) star.getX(), (int) star.getY(), (int) (star.getX() + star.getWidth()), (int) (star.getY() + star.getHeight()));
 
-        Iterator<Star> iterator = starActivity.starArrayList.iterator();
+        Iterator<Star> iterator = starActivity.getStarArrayList().iterator();
         while (iterator.hasNext()) {
             Star toCheck = iterator.next();
             //we don't want to check if a star overlaps itself.
             if (toCheck != star) {
                 if (star.getWidth() > toCheck.getWidth()) {
-                    Rect check = new Rect((int) toCheck.getX(), (int) toCheck.getY(), (int) (toCheck.getX() + toCheck.getWidth()), (int) (toCheck.getY() + toCheck.getHeight()));
-                    if (rect.intersect(check)) {
+                    if (rect.intersects((int) toCheck.getX(), (int) toCheck.getY(), (int) (toCheck.getX() + toCheck.getWidth()), (int) (toCheck.getY() + toCheck.getHeight()))){
                         changeStarSize(star, (int) (star.getWidth() * findSizeAfterConsuming(star, toCheck)));
-                        toCheck.setVisibility(View.GONE);
+                        starActivity.getMainLayout().removeView(toCheck);
                         iterator.remove();
                     }
                 }
@@ -75,34 +73,38 @@ public class CollisionUtil {
     public void hitWall(StellarObject object, FlingAnimation fling, float oldVelocity, boolean verticalStrike) {
         object.setWallsHitSinceFling(object.getWallsHitSinceFling() + 1);
         fling.setStartVelocity(0 - oldVelocity);
+
+        if(object instanceof Star)
         object.setHasHitWallAfterFling(true);
 
+        //if you've hit off one of the top or bottom walls
         if (verticalStrike) {
-            if (object.getClass() == Baddie.class) {
+            if (object instanceof Baddie) {
                 Baddie baddie = (Baddie) object;
-                baddie.setFlingYVelocity(0 - baddie.getFlingYVelocity());
+                baddie.setVerticalFlingSpeed(0 - baddie.getVerticalFlingSpeed());
             }
 
             if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getYVelocity() > speedNeededToBreak) {
-                if (object.getClass() == Star.class) {
+                if (object instanceof Star) {
                     objectCreator.createNewStar(object.getX(), object.getY(), oldVelocity, 0, (Star) object);
                 }
             }
-        } else if (!verticalStrike) {
-            if (object.getClass() == Baddie.class) {
+            //if you've hit one of the side walls
+        } else {
+            if (object instanceof Baddie) {
                 Baddie baddie = (Baddie) object;
-                baddie.setFlingXVelocity(0 - baddie.getFlingXVelocity());
+                baddie.setHorizontalFlingSpeed(0 - baddie.getHorizontalFlingSpeed());
             }
 
             if (object.getWallsHitSinceFling() > wallsNeededToBreak && object.getXVelocity() > speedNeededToBreak) {
-                if (object.getClass() == Star.class) {
+                if (object instanceof Star) {
                     objectCreator.createNewStar(object.getX(), object.getY(), 0, oldVelocity, (Star) object);
                 }
             }
         }
     }
 
-    public int getForce(StellarObject object) {
+    private int getForce(StellarObject object) {
         int accelerationProxy = (int) Math.max(object.getXVelocity(), object.getYVelocity());
         int massProxy = object.getWidth();
 
@@ -115,7 +117,7 @@ public class CollisionUtil {
         Rect rect = new Rect();
         rect.set((int) star.getX(), (int) star.getY(), (int) (star.getX() + star.getWidth()), (int) (star.getY() + star.getHeight()));
 
-        Iterator<Baddie> iterator = starActivity.baddieArrayList.iterator();
+        Iterator<Baddie> iterator = starActivity.getBaddieArrayList().iterator();
         while (iterator.hasNext()) {
             Baddie toCheck = iterator.next();
             Rect check = new Rect((int) toCheck.getX(), (int) toCheck.getY(), (int) (toCheck.getX() + toCheck.getWidth()), (int) (toCheck.getY() + toCheck.getHeight()));
@@ -123,23 +125,21 @@ public class CollisionUtil {
 
                 if (starForce > getForce(toCheck)) {
                     changeStarSize(star, (int) (star.getWidth() / findSizeAfterConsuming(star, toCheck)));
-                    toCheck.setVisibility(View.GONE);
+                    starActivity.getMainLayout().removeView(toCheck);
                     iterator.remove();
-                    //todo: get a reference to your constraintlayout - then remove the view from it. You don't need to call .Gone.
-                    //todo: remove view
                 }
             }
         }
     }
 
-    public void changeStarSize(ImageView star, int newSize) {
+    private void changeStarSize(ImageView star, int newSize) {
         ConstraintLayout constraintLayout = starActivity.findViewById(R.id.constraintLayout);
         ConstraintLayout.LayoutParams lp = new ConstraintLayout.LayoutParams(newSize, newSize);
         constraintLayout.removeView(star);
         constraintLayout.addView(star, -1, lp);
     }
 
-    public double findSizeAfterConsuming(ImageView consumer, ImageView consumed) {
+    private double findSizeAfterConsuming(ImageView consumer, ImageView consumed) {
         double totalOriginalSize = ((consumer.getWidth() * .25) * (consumer.getHeight() * .25)) / 1000;
         double totalConsumedSize = ((consumed.getWidth() * .25) * (consumed.getHeight() * .25)) / 1000;
         double combinedSize = totalConsumedSize + totalOriginalSize;

@@ -12,11 +12,11 @@ public class Fling {
 
     private FlingAnimationActivity starActivity;
 
-    public Fling(FlingAnimationActivity starActivity){
+    Fling(FlingAnimationActivity starActivity){
         this.starActivity = starActivity;
     }
 
-    //same as a normal FlingX, except it doesn't splinter into new stars when it hits the walls.
+    //same as a normal flingX(), except it doesn't splinter into new stars when it hits the walls, and there are no checks for interactions with other objects
     public void simpleXFling(final Star object, final float velocityX) {
         final FlingAnimation flingX = new FlingAnimation(object, DynamicAnimation.X);
         flingX.setStartVelocity(velocityX)
@@ -28,7 +28,7 @@ public class Fling {
                         float newVelocity = 0 - velocity;
                         if (object.getX() < 0 && velocity < 0) {
                             flingX.setStartVelocity(newVelocity);
-                        } else if (object.getX() > starActivity.screenWidth - ((object.getWidth() - object.getPaddingRight())) && velocity > 0) {
+                        } else if (object.getX() > starActivity.getScreenWidth() - ((object.getWidth() - object.getPaddingRight())) && velocity > 0) {
                             flingX.setStartVelocity(newVelocity);
                         }
                     }
@@ -36,7 +36,7 @@ public class Fling {
                 .start();
     }
 
-    //same as a normal FlingY, except it doesn't splinter into new stars when it hits the walls.
+    //same as a normal flingY(), except it doesn't splinter into new stars when it hits the walls, and there are no checks for interactions with other objects
     public void simpleYFling(final Star object, final float velocityY) {
         final FlingAnimation flingY = new FlingAnimation(object, DynamicAnimation.Y);
         flingY.setStartVelocity(velocityY)
@@ -48,7 +48,7 @@ public class Fling {
                         float newVelocity = 0 - velocity;
                         if (object.getY() < 0 && velocity < 0) {
                             flingY.setStartVelocity(newVelocity);
-                        } else if (object.getY() > starActivity.screenHeight - ((object.getHeight() * 2)) && velocity > 0) {
+                        } else if (object.getY() > starActivity.getScreenHeight() - ((object.getHeight() * 2)) && velocity > 0) {
                             flingY.setStartVelocity(newVelocity);
                         }
                     }
@@ -59,8 +59,10 @@ public class Fling {
     public void flingX(final StellarObject object,
                        final float velocityX, final CollisionUtil collisionUtil) {
 
-        object.setHasHitWallAfterFling(false);
-        object.setWallsHitSinceFling(0);
+        if (object instanceof Star){
+            object.setHasHitWallAfterFling(false);
+            object.setWallsHitSinceFling(0);
+        }
 
         final FlingAnimation flingX = new FlingAnimation(object, DynamicAnimation.X);
         flingX.setStartVelocity(velocityX)
@@ -69,8 +71,7 @@ public class Fling {
                     @Override
                     public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
 
-                        //todo: if instanceOf()
-                        if (object.getClass() == Star.class) {
+                        if (object instanceof Star) {
                             Star star = (Star) object;
                             collisionUtil.checkForBaddieDestruction(star);
                         }
@@ -79,7 +80,7 @@ public class Fling {
                         if (object.getX() < 0 && velocity < 0) {
                             collisionUtil.hitWall(object, flingX, velocity, false);
 
-                        } else if (object.getX() > starActivity.screenWidth - ((object.getWidth() - object.getPaddingRight())) && velocity > 0) {
+                        } else if (object.getX() > starActivity.getScreenWidth() - ((object.getWidth() - object.getPaddingRight())) && velocity > 0) {
                             collisionUtil.hitWall(object, flingX, velocity, false);
                         }
                     }
@@ -89,8 +90,10 @@ public class Fling {
 
     public void flingY(final StellarObject object, final float velocityY, final CollisionUtil collisionUtil) {
 
-        object.setHasHitWallAfterFling(false);
-        object.setWallsHitSinceFling(0);
+        if (object instanceof Star){
+            object.setHasHitWallAfterFling(false);
+            object.setWallsHitSinceFling(0);
+        }
 
         final FlingAnimation flingY = new FlingAnimation(object, DynamicAnimation.Y);
         flingY.setStartVelocity(velocityY)
@@ -99,13 +102,14 @@ public class Fling {
                     @Override
                     public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
 
-                        //note: I'm only checking for star consumption in flingY. Stars will not be consumed in the rare event that
-                        //the user flings a star in a perfectly horizontal direction, however, this will make the program much more efficient. (Talk about adding a method to solve this)
+                        //note: I'm only checking for star consumption in flingY. Stars will not be consumed in the very rare event that
+                        //the user flings a star in a perfectly horizontal direction, however, this will make the program much more efficient.
+                        //future iterations of the project could include a method to check for this scenario.
                         if (!object.GetHasHitWallAfterFling())
                             collisionUtil.checkForStarConsumption(object);
 
                         //I am, however, checking for baddie destruction in both X and Y flings, as there are far fewer of them to check.
-                        if (object.getClass() == Star.class) {
+                        if (object instanceof Star) {
                             Star star = (Star) object;
                             collisionUtil.checkForBaddieDestruction(star);
                         }
@@ -114,16 +118,12 @@ public class Fling {
 
                         //hit wall
                         if (object.getY() < 0 && velocity < 0) {
-
                             collisionUtil.hitWall(object, flingY, velocity, true);
-
-                        } else if (object.getY() > starActivity.screenHeight - ((object.getHeight() * 2)) && velocity > 0) {
-
+                        } else if (object.getY() > starActivity.getScreenHeight() - ((object.getHeight() * 2)) && velocity > 0) {
                             collisionUtil.hitWall(object, flingY, velocity, true);
                         }
                     }
                 })
                 .start();
     }
-
 }

@@ -3,15 +3,9 @@ package com.example.twomack.animationtest.stars;
 import android.annotation.SuppressLint;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.animation.DynamicAnimation;
-import android.support.animation.SpringAnimation;
-import android.support.animation.SpringForce;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.View;
+import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
 import com.example.twomack.animationtest.R;
@@ -22,23 +16,85 @@ import java.util.ArrayList;
 
 public class FlingAnimationActivity extends AppCompatActivity {
 
-    public float screenHeight;
-    public float screenWidth;
-    public int baddieSpeed = 500;
-    public int baddieMovementDelay = 1500;
-    public int baddieRespawnRate = 10000;
-    public int starGenerationDelay = 200;
-    public int timesDifficultyIncreased = 0;
+
+    private float screenHeight;
+    private float screenWidth;
+    private int baddieSpeed = 500;
+    private int baddieMovementDelay = 1500;
+    private int baddieRespawnRate = 10000;
+    private int starGenerationDelay = 200;
+    private int timesDifficultyIncreased = 0;
+
+    //region getters and setters
+    public float getScreenHeight() {
+        return screenHeight;
+    }
+
+    public float getScreenWidth() {
+        return screenWidth;
+    }
+
+    public int getBaddieSpeed() {
+        return baddieSpeed;
+    }
+
+    public void setBaddieSpeed(int baddieSpeed) {
+        this.baddieSpeed = baddieSpeed;
+    }
+
+    public int getBaddieMovementDelay() {
+        return baddieMovementDelay;
+    }
+
+    public void setBaddieMovementDelay(int baddieMovementDelay) {
+        this.baddieMovementDelay = baddieMovementDelay;
+    }
+
+    public int getBaddieRespawnRate() {
+        return baddieRespawnRate;
+    }
+
+    public void setBaddieRespawnRate(int baddieRespawnRate) {
+        this.baddieRespawnRate = baddieRespawnRate;
+    }
+
+    public int getStarGenerationDelay() {
+        return starGenerationDelay;
+    }
+
+    public void setStarGenerationDelay(int starGenerationDelay) {
+        this.starGenerationDelay = starGenerationDelay;
+    }
+
+    public int getTimesDifficultyIncreased() {
+        return timesDifficultyIncreased;
+    }
+
+    public void setTimesDifficultyIncreased(int timesDifficultyIncreased) {
+        this.timesDifficultyIncreased = timesDifficultyIncreased;
+    }
+
+    public CollisionUtil getCollisionUtil() {
+        return collisionUtil;
+    }
+
+    public ConstraintLayout getMainLayout() {
+        return mainLayout;
+    }
+
+    public ArrayList<Star> getStarArrayList() {
+        return starArrayList;
+    }
+
+    public ArrayList<Baddie> getBaddieArrayList() {
+        return baddieArrayList;
+    }
+    //endregion
 
     CollisionUtil collisionUtil;
     Fling fling;
     ObjectCreator objectCreator;
-
-    //todo: figure out how to use this.
-    //AppConstants appConstants;
-
-    //mention dependency injection as a good idea here
-
+    ConstraintLayout mainLayout;
     ArrayList<Star> starArrayList = new ArrayList<>();
     ArrayList<Baddie> baddieArrayList = new ArrayList<>();
 
@@ -48,40 +104,29 @@ public class FlingAnimationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fling_layout);
 
-        //display metrics - you're currently using pixels and not dp
-        //DisplayMetrics metrics = getResources().getDisplayMetrics();
-        //metrics.density
-        //test on different densities
-        //if you're low density, do x, otherwise...
-        //you can bitmaps, etc dynamically based on density of the screen.
+        mainLayout = findViewById(R.id.constraintLayout);
 
-        //perfect dependency injection use case
+        //dependency injection would be great here
         fling = new Fling(this);
         objectCreator = new ObjectCreator(this, fling);
         collisionUtil = new CollisionUtil(this, objectCreator);
         Generators generator = new Generators(this, objectCreator, fling, collisionUtil);
 
-        findScreenDimens();
+        findBorder();
         objectCreator.createInitialObjects();
         generator.startBaddieGenerator();
         generator.startStarGenerator();
         generator.startDifficultyGenerator();
         generator.startBaddieMovement();
-
     }
 
-    public void findScreenDimens(){
+    public void findBorder(){
         ImageView bar = findViewById(R.id.bar);
         final float barHeight = bar.getDrawable().getIntrinsicHeight();
-
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         screenWidth = size.x;
         screenHeight = size.y - (barHeight * 2);
-    }
-
-    public CollisionUtil getCollisionUtil() {
-        return collisionUtil;
     }
 
     @Override
@@ -89,5 +134,4 @@ public class FlingAnimationActivity extends AppCompatActivity {
         finish();
         super.onBackPressed();
     }
-
 }

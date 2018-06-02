@@ -9,9 +9,9 @@ public abstract class StellarObject extends android.support.v7.widget.AppCompatI
     }
 
     private boolean hasHitWallAfterFling;
+    private int wallsHitSinceFling;
     private float xVelocity;
     private float yVelocity;
-    private int wallsHitSinceFling;
 
     public int getWallsHitSinceFling() {
         return wallsHitSinceFling;

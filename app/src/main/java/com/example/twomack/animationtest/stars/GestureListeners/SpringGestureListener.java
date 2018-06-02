@@ -13,12 +13,12 @@ import com.example.twomack.animationtest.stars.Fling;
 import com.example.twomack.animationtest.stars.FlingAnimationActivity;
 
 public class SpringGestureListener extends GestureDetector.SimpleOnGestureListener {
-    ImageView imageView;
-    Fling fling;
-    CollisionUtil collisionUtil;
-    FlingAnimationActivity starActivity;
+    private ImageView imageView;
+    private Fling fling;
+    private CollisionUtil collisionUtil;
+    private FlingAnimationActivity starActivity;
 
-    SpringGestureListener(ImageView imageView, Fling fling, CollisionUtil collisionUtil, FlingAnimationActivity starActivity) {
+    public SpringGestureListener(ImageView imageView, Fling fling, CollisionUtil collisionUtil, FlingAnimationActivity starActivity) {
         this.imageView = imageView;
         this.fling = fling;
         this.collisionUtil = collisionUtil;
@@ -40,7 +40,7 @@ public class SpringGestureListener extends GestureDetector.SimpleOnGestureListen
         Runnable r = new Runnable() {
             public void run() {
                 //what ever you do here will be done after 1 seconds delay.
-                SpringAnimation springAnimation = new SpringAnimation(imageView, DynamicAnimation.Y, starActivity.screenHeight - imageView.getHeight() / 2);
+                SpringAnimation springAnimation = new SpringAnimation(imageView, DynamicAnimation.Y, starActivity.getScreenHeight() - imageView.getHeight() / 2);
                 springAnimation.getSpring().setStiffness(SpringForce.STIFFNESS_VERY_LOW);
                 springAnimation.start();
             }

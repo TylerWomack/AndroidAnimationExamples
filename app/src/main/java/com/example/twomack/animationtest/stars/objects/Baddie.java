@@ -2,72 +2,29 @@ package com.example.twomack.animationtest.stars.objects;
 
 import android.content.Context;
 
-import com.example.twomack.animationtest.stars.objects.StellarObject;
-
 public class Baddie extends StellarObject {
 
-
-    private boolean hasHitWallAfterFling;
-    private float xVelocity;
-    private float yVelocity;
-    private int wallsHitSinceFling;
-
-
-    private int flingXVelocity;
-    private int flingYVelocity;
-
+    private int horizontalFlingSpeed;
+    private int verticalFlingSpeed;
 
     public Baddie(Context context) {
         super(context);
     }
 
-    public int getWallsHitSinceFling() {
-        return wallsHitSinceFling;
+    public int getHorizontalFlingSpeed() {
+        return horizontalFlingSpeed;
     }
 
-    public void setWallsHitSinceFling(int wallsHitSinceFling) {
-        this.wallsHitSinceFling = wallsHitSinceFling;
+    public void setHorizontalFlingSpeed(int horizontalFlingSpeed) {
+        this.horizontalFlingSpeed = horizontalFlingSpeed;
     }
 
-
-    public int getFlingXVelocity() {
-        return flingXVelocity;
+    public int getVerticalFlingSpeed() {
+        return verticalFlingSpeed;
     }
 
-    public void setFlingXVelocity(int flingXVelocity) {
-        this.flingXVelocity = flingXVelocity;
-    }
-
-    public int getFlingYVelocity() {
-        return flingYVelocity;
-    }
-
-    public void setFlingYVelocity(int flingYVelocity) {
-        this.flingYVelocity = flingYVelocity;
-    }
-
-    public float getYVelocity() {
-        return yVelocity;
-    }
-
-    public void setYVelocity(float yVelocity) {
-        this.yVelocity = yVelocity;
-    }
-
-    public float getXVelocity() {
-        return xVelocity;
-    }
-
-    public void setXVelocity(float xVelocity) {
-        this.xVelocity = xVelocity;
-    }
-
-    public boolean GetHasHitWallAfterFling() {
-        return hasHitWallAfterFling;
-    }
-
-    public void setHasHitWallAfterFling(boolean hasHitWallAfterFling) {
-        this.hasHitWallAfterFling = hasHitWallAfterFling;
+    public void setVerticalFlingSpeed(int verticalFlingSpeed) {
+        this.verticalFlingSpeed = verticalFlingSpeed;
     }
 
 }

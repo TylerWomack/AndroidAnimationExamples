@@ -1,12 +1,8 @@
 package com.example.twomack.animationtest.stars;
 
-import android.app.Activity;
 import android.os.Handler;
-
 import com.example.twomack.animationtest.stars.objects.Baddie;
-
 import java.util.Random;
-
 import static com.example.twomack.animationtest.stars.AppConstants.difficultyIncreaseInterval;
 import static com.example.twomack.animationtest.stars.AppConstants.difficultyIncreaseLimit;
 import static com.example.twomack.animationtest.stars.AppConstants.difficultyIncreaseMultiplier;
@@ -15,9 +11,9 @@ public class Generators {
 
     private FlingAnimationActivity starActivity;
     private Handler handler;
-    ObjectCreator objectCreator;
-    Fling fling;
-    CollisionUtil collisionUtil;
+    private ObjectCreator objectCreator;
+    private Fling fling;
+    private CollisionUtil collisionUtil;
 
     Generators(FlingAnimationActivity starActivity, ObjectCreator objectCreator, Fling fling, CollisionUtil collisionUtil){
         this.starActivity = starActivity;
@@ -34,7 +30,7 @@ public class Generators {
                 startBaddieGenerator();
             }
         };
-        handler.postDelayed(r, starActivity.baddieRespawnRate);
+        handler.postDelayed(r, starActivity.getBaddieRespawnRate());
     }
 
     public void startBaddieMovement() {
@@ -45,18 +41,18 @@ public class Generators {
                 startBaddieMovement();
             }
         };
-        handler.postDelayed(r, starActivity.baddieMovementDelay);
+        handler.postDelayed(r, starActivity.getBaddieMovementDelay());
     }
 
     public void startStarGenerator() {
         final Random random = new Random();
         final Runnable r = new Runnable() {
             public void run() {
-                objectCreator.createNewStar(random.nextFloat() * starActivity.screenHeight, random.nextFloat() * starActivity.screenWidth, random.nextFloat() * 100, random.nextFloat() * 100, null);
+                objectCreator.createNewStar(random.nextFloat() * starActivity.getScreenHeight(), random.nextFloat() * starActivity.getScreenWidth(), random.nextFloat() * 100, random.nextFloat() * 100, null);
                 startStarGenerator();
             }
         };
-        handler.postDelayed(r, starActivity.starGenerationDelay);
+        handler.postDelayed(r, starActivity.getStarGenerationDelay());
     }
 
     public void startDifficultyGenerator() {
@@ -64,29 +60,28 @@ public class Generators {
             public void run() {
                 increaseDifficulty();
 
-                if (starActivity.timesDifficultyIncreased > difficultyIncreaseLimit) {
+                if (starActivity.getTimesDifficultyIncreased() > difficultyIncreaseLimit) {
                     return;
                 }
 
-                starActivity.timesDifficultyIncreased++;
+                starActivity.setTimesDifficultyIncreased(starActivity.getTimesDifficultyIncreased() + 1);
                 startDifficultyGenerator();
             }
         };
         handler.postDelayed(r, difficultyIncreaseInterval);
     }
 
-    public void moveAllBaddies() {
+    private void moveAllBaddies() {
         for (Baddie baddie : starActivity.baddieArrayList) {
-            fling.flingY(baddie, baddie.getFlingYVelocity(), collisionUtil);
-            fling.flingX(baddie, baddie.getFlingXVelocity(), collisionUtil);
+            fling.flingY(baddie, baddie.getVerticalFlingSpeed(), collisionUtil);
+            fling.flingX(baddie, baddie.getHorizontalFlingSpeed(), collisionUtil);
         }
     }
 
-    public void increaseDifficulty() {
-        starActivity.baddieSpeed = (int) (starActivity.baddieSpeed * difficultyIncreaseMultiplier);
-        starActivity.baddieMovementDelay = (int) (starActivity.baddieMovementDelay / difficultyIncreaseMultiplier);
-        starActivity.baddieRespawnRate = (int) (starActivity.baddieRespawnRate / difficultyIncreaseMultiplier);
-        starActivity.starGenerationDelay = (int) ((double) starActivity.starGenerationDelay / difficultyIncreaseMultiplier);
-    }
-
+    private void increaseDifficulty() {
+        starActivity.setBaddieSpeed((int) (starActivity.getBaddieSpeed() * difficultyIncreaseMultiplier));
+        starActivity.setBaddieMovementDelay((int) (starActivity.getBaddieMovementDelay() / difficultyIncreaseMultiplier));
+        starActivity.setBaddieRespawnRate((int) (starActivity.getBaddieRespawnRate() / difficultyIncreaseMultiplier));
+        starActivity.setStarGenerationDelay((int) ((double) (starActivity.getStarGenerationDelay() / difficultyIncreaseMultiplier)));
+        }
 }

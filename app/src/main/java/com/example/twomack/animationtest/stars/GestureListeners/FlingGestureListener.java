@@ -9,11 +9,11 @@ import com.example.twomack.animationtest.stars.objects.Star;
 
 public class FlingGestureListener extends GestureDetector.SimpleOnGestureListener {
 
-    Star imageView;
-    Fling fling;
-    CollisionUtil collisionUtil;
+    private Star imageView;
+    private Fling fling;
+    private CollisionUtil collisionUtil;
 
-    FlingGestureListener(Star imageView, Fling fling, CollisionUtil collisionUtil) {
+    public FlingGestureListener(Star imageView, Fling fling, CollisionUtil collisionUtil) {
         this.imageView = imageView;
         this.fling = fling;
         this.collisionUtil = collisionUtil;
